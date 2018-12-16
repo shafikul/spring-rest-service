@@ -36,7 +36,7 @@ public class EmployeeController {
 	
 	@LogExecutionTime
 	@PostMapping("/filterByAge")
-	public EntityRestResponse getEmployeesFilterByAge(@RequestBody @Valid SortFilterBean ageFilterBean, Errors errors) {
+	public EntityRestResponse getFilterByAgeEmployees(@RequestBody @Valid SortFilterBean ageFilterBean, Errors errors) {
 		if (errors.hasErrors()) {
 			return getErrorResponse(errors);
 		}
@@ -65,7 +65,7 @@ public class EmployeeController {
 
 	@LogExecutionTime
 	@DeleteMapping("/{id}")
-	public EntityRestResponse deleteCustomer(@PathVariable Long id) {
+	public EntityRestResponse deleteEmployee(@PathVariable Long id) {
 		if (null == employeeService.deleteEmployeeRecord(id)) {
 			return new EntityRestResponse(ResponseItemType.ERROR, HttpStatus.NOT_FOUND);
 		}
@@ -74,7 +74,7 @@ public class EmployeeController {
 
 	@LogExecutionTime
 	@PutMapping("/{id}")
-	public EntityRestResponse updateCustomer(@PathVariable Long id, @RequestBody @Valid EmployeeBean employee,
+	public EntityRestResponse updateEmployee(@PathVariable Long id, @RequestBody @Valid EmployeeBean employee,
 			Errors errors) {
 		if (errors.hasErrors()) {
 			return getErrorResponse(errors);
