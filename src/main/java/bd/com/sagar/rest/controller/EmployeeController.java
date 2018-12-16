@@ -46,7 +46,7 @@ public class EmployeeController {
 	@LogExecutionTime
 	@GetMapping("/{id}")
 	public EntityRestResponse getEmployee(@PathVariable("id") Long id) {
-		EmployeeBean employee = employeeService.get(id);
+		EmployeeBean employee = employeeService.getEmployee(id);
 		if (employee == null) {
 			return new EntityRestResponse(ResponseItemType.ERROR, HttpStatus.NOT_FOUND);
 		}

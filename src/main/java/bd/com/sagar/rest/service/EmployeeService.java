@@ -18,7 +18,7 @@ public class EmployeeService {
 	private EmployeeRepository employeeRepository;
 
 	/**
-	 * Returns list of employee from dummy database.
+	 * Returns list of employee from JSON File
 	 * 
 	 * @return list of employee
 	 */
@@ -27,7 +27,7 @@ public class EmployeeService {
 	}
 
 	/**
-	 * Returns list of employee filtering and sorting data from dummy database
+	 * Returns list of employee filtering and sorting data from JSON File
 	 * 
 	 * @param ageFilterBean
 	 * @return
@@ -45,18 +45,18 @@ public class EmployeeService {
 	}
 
 	/**
-	 * Return employee object for given id from dummy database. If employee is not
+	 * Return employee object for given id from JSON File. If employee is not
 	 * found for id, returns null.
 	 * 
 	 * @param id employee id
 	 * @return employee object for given id
 	 */
-	public EmployeeBean get(Long id) {
+	public EmployeeBean getEmployee(Long id) {
 		return employeeRepository.getEmployee(id);
 	}
 
 	/**
-	 * Create new employee in dummy database. Updates the id and insert new employee
+	 * Create new employee in JSON File. Updates the id and insert new employee
 	 * in list.
 	 * 
 	 * @param employee object
@@ -71,7 +71,7 @@ public class EmployeeService {
 	}
 
 	/**
-	 * Delete the employee object from dummy database. If employee not found for
+	 * Delete the employee object from JSON File. If employee not found for
 	 * given id, returns null.
 	 * 
 	 * @param id employee id
@@ -83,9 +83,9 @@ public class EmployeeService {
 			return null;
 		}
 		List<EmployeeBean> employees = getEmployeeList();
-		for (EmployeeBean c : employees) {
-			if (c.getId().equals(id)) {
-				employees.remove(c);
+		for (EmployeeBean emp : employees) {
+			if (emp.getId().equals(id)) {
+				employees.remove(emp);
 				employeeRepository.bulkInsertEmployeeRecord(employees);
 				return id;
 			}
@@ -94,7 +94,7 @@ public class EmployeeService {
 	}
 
 	/**
-	 * Update the employee object for given id in dummy database. If employee not
+	 * Update the employee object for given id in JSON File. If employee not
 	 * exists, returns null
 	 * 
 	 * @param id
@@ -108,10 +108,10 @@ public class EmployeeService {
 		}
 		List<EmployeeBean> employees = getEmployeeList();
 
-		for (EmployeeBean c : employees) {
-			if (c.getId().equals(id)) {
-				employee.setId(c.getId());
-				employees.remove(c);
+		for (EmployeeBean emp : employees) {
+			if (emp.getId().equals(id)) {
+				employee.setId(emp.getId());
+				employees.remove(emp);
 				employees.add(employee);
 				employeeRepository.bulkInsertEmployeeRecord(employees);
 				return employee;
@@ -120,6 +120,12 @@ public class EmployeeService {
 		return null;
 	}
 	
+	/**
+	 * Get maxId from employee JSON File. And insert new maxId with the record
+	 *  
+	 * @param employees
+	 * @return Long maxId + 1
+	 */
 	public Long getMaxId(List<EmployeeBean> employees) {
 		Long maxId = 0L;
 		for(EmployeeBean employeeBean: employees) {
@@ -130,6 +136,13 @@ public class EmployeeService {
 		return maxId + 1;
 	}
 
+	/**
+	 * Filter employee record by age based on operator e.g lt, lte, gt
+	 * @param employee
+	 * @param operator
+	 * @param value
+	 * @return true or false based on condition
+	 */
 	private boolean acceptAgeFilterCondition(EmployeeBean employee, OperatorType operator, int value) {
 		if (null == operator) {
 			return false;

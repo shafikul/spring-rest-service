@@ -54,7 +54,7 @@ public class TestEmployeeController {
 	@Test
 	public void shouldGetEmployee() {
 		Long employeeId = 1L;
-		Mockito.when(employeeService.get(employeeId)).thenReturn(getMockObject());
+		Mockito.when(employeeService.getEmployee(employeeId)).thenReturn(getMockObject());
 		EntityRestResponse response = employeeController.getEmployee(employeeId);
 		Assert.assertNotNull(response);
 		EmployeeBean employee = (EmployeeBean) response.getResult();
@@ -65,7 +65,7 @@ public class TestEmployeeController {
 	@Test
 	public void shouldGetNullEmployeeResponse() {
 		Long employeeId = 0L;
-		Mockito.when(employeeService.get(employeeId)).thenReturn(null);
+		Mockito.when(employeeService.getEmployee(employeeId)).thenReturn(null);
 		EntityRestResponse response = employeeController.getEmployee(employeeId);
 		Assert.assertNotNull(response);
 		Assert.assertTrue(response.getType().equals(ResponseItemType.ERROR));		
