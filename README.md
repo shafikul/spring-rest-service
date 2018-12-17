@@ -1,6 +1,11 @@
 # spring-rest-service
+
 SPRING BOOT REST SERVICE FOR JSON FILE MODIFICATION
 ---
+
+[![Build Status](https://travis-ci.org/shafikul/spring-rest-service.svg?branch=master)](https://travis-ci.org/shafikul/spring-rest-service)
+
+
 ## HOW TO RUN 
 
 At first clone this repository https://github.com/shafikul/spring-rest-service.git  
@@ -16,4 +21,5 @@ spring-rest-service-0.0.1.jar file will be created in target folder
 
 Run the jar ***java -jar spring-rest-service-0.0.1.jar***  
 
-Application will be started in ***http://localhost:8080***
+Application will be started in ***http://localhost:8080***  
+
