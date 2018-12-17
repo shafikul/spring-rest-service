@@ -23,3 +23,7 @@ Run the jar ***java -jar spring-rest-service-0.0.1.jar***
 
 Application will be started in ***http://localhost:8080***  
 
+
+## API DOCUMENTATION
+
+Go to https://github.com/shafikul/spring-rest-service/wiki/API-DOCUMENTATION
