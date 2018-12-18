@@ -10,9 +10,13 @@ import bd.com.sagar.rest.core.bean.EmployeeBean;
 import bd.com.sagar.rest.core.bean.SortFilterBean;
 import bd.com.sagar.rest.core.type.OperatorType;
 import bd.com.sagar.rest.model.EmployeeRepository;
+import bd.com.sagar.rest.pubsub.PublisherExample;
 
 @Service
 public class EmployeeService {
+	
+	@Autowired
+	private PublisherExample publisher;
 
 	@Autowired
 	private EmployeeRepository employeeRepository;
@@ -87,6 +91,7 @@ public class EmployeeService {
 			if (emp.getId().equals(id)) {
 				employees.remove(emp);
 				employeeRepository.bulkInsertEmployeeRecord(employees);
+				publisher.publishNotification(previousRecord);
 				return id;
 			}
 		}

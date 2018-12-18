@@ -14,6 +14,7 @@ import org.mockito.MockitoAnnotations;
 import bd.com.sagar.rest.core.bean.EmployeeBean;
 import bd.com.sagar.rest.core.bean.SortFilterBean;
 import bd.com.sagar.rest.model.EmployeeRepository;
+import bd.com.sagar.rest.pubsub.PublisherExample;
 
 public class TestEmployeeService {
 
@@ -22,6 +23,9 @@ public class TestEmployeeService {
 
 	@Mock
 	private EmployeeRepository employeeRepository;
+	
+	@Mock
+	private PublisherExample publisher;
 
 	@Before
 	public void setup() {
@@ -103,6 +107,7 @@ public class TestEmployeeService {
 		Mockito.when(employeeRepository.getEmployeeList()).thenReturn(getMockList());
 		Mockito.when(employeeRepository.bulkInsertEmployeeRecord(Mockito.anyList())).thenReturn(true);
 		Mockito.when(employeeRepository.getEmployee(employeeId)).thenReturn(employeeBean);
+		Mockito.doNothing().when(publisher).publishNotification(Mockito.any(EmployeeBean.class));
 		Long deletedRecordId = employeeService.deleteEmployeeRecord(employeeId);
 		Assert.assertTrue(deletedRecordId.equals(employeeId));
 	}
