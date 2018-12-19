@@ -16,16 +16,6 @@
 
 package bd.com.sagar.rest.pubsub;
 
-import java.io.IOException;
-import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.ServiceOptions;
 import com.google.cloud.pubsub.v1.AckReplyConsumer;
@@ -37,69 +27,79 @@ import com.google.pubsub.v1.ProjectTopicName;
 import com.google.pubsub.v1.PubsubMessage;
 import com.google.pubsub.v1.PushConfig;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.LinkedBlockingDeque;
+
+import javax.annotation.PostConstruct;
+
 @Component
 public class SubscriberExample {
 
-	public static final String PROJECT_ID = ServiceOptions.getDefaultProjectId();
-	
-	public static final String TOPIC_ID = "delete-json-topic"; 
+    public static final String PROJECT_ID = ServiceOptions.getDefaultProjectId();
 
-	private static final BlockingQueue<PubsubMessage> messages = new LinkedBlockingDeque<>();
-	
-	@Value("${app.notification}")
-	private String notification;
-	
-	@PostConstruct
-	protected void init() {
-		if(notification.equals("on")) {
-			UUID uuid = UUID.randomUUID();
-			String subscriptionId = "sagar-subscription";
-			createSubscription(subscriptionId);
-			getMessage(subscriptionId);
-		}		
-	}
-	
-	public void createSubscription(String subscriptionId) {		
-		ProjectTopicName topicName = ProjectTopicName.of(PROJECT_ID, TOPIC_ID);
-		ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(PROJECT_ID, subscriptionId);
-		try (SubscriptionAdminClient subscriptionAdminClient = SubscriptionAdminClient.create()) {
-			subscriptionAdminClient.createSubscription(subscriptionName, topicName,
-					PushConfig.getDefaultInstance(), 0);
-		} catch (ApiException e) {
-			System.out.print(e.getStatusCode().getCode());
-			System.out.print(e.isRetryable());
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		System.out.printf("Subscription %s:%s created.\n", subscriptionName.getProject(),
-				subscriptionName.getSubscription());
-	}
+    public static final String TOPIC_ID = "delete-json-topic";
 
-	static class MessageReceiverExample implements MessageReceiver {
-		@Override
-		public void receiveMessage(PubsubMessage message, AckReplyConsumer consumer) {
-			messages.offer(message);
-			consumer.ack();
-		}
-	}
+    private static final BlockingQueue<PubsubMessage> messages = new LinkedBlockingDeque<>();
 
-	public void getMessage(String subscriptionId) {		
-		ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(PROJECT_ID, subscriptionId);
-		Subscriber subscriber = null;
-		try {
-			subscriber = Subscriber.newBuilder(subscriptionName, new MessageReceiverExample()).build();
-			subscriber.startAsync().awaitRunning();
-			while (true) {
-				PubsubMessage message = messages.take();
-				System.out.println("Message Id: " + message.getMessageId());
-				System.out.println("Data: " + message.getData().toStringUtf8());
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} finally {
-			if (subscriber != null) {
-				subscriber.stopAsync();
-			}
-		}
-	}
+    @Value("${app.notification}")
+    private String notification;
+
+    @PostConstruct
+    protected void init() {
+        if (notification.equals("on")) {
+            String subscriptionId = "delete-json-subscription";
+            CompletableFuture.runAsync(() -> {
+                createSubscription(subscriptionId);
+                getMessage(subscriptionId);
+            });
+        }
+    }
+
+    public void createSubscription(String subscriptionId) {
+        ProjectTopicName topicName = ProjectTopicName.of(PROJECT_ID, TOPIC_ID);
+        ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(PROJECT_ID, subscriptionId);
+        try (SubscriptionAdminClient subscriptionAdminClient = SubscriptionAdminClient.create()) {
+            subscriptionAdminClient.createSubscription(subscriptionName, topicName, PushConfig.getDefaultInstance(), 0);
+        } catch (ApiException e) {
+            System.out.println("status code -> "+ e.getStatusCode().getCode());
+            System.out.println("retryable -> " + e.isRetryable());
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        System.out.printf("Subscription %s:%s created.\n", subscriptionName.getProject(),
+                subscriptionName.getSubscription());
+    }
+
+    static class MessageReceiverExample implements MessageReceiver {
+        @Override
+        public void receiveMessage(PubsubMessage message, AckReplyConsumer consumer) {
+            messages.offer(message);
+            consumer.ack();
+        }
+    }
+
+    public void getMessage(String subscriptionId) {
+        ProjectSubscriptionName subscriptionName = ProjectSubscriptionName.of(PROJECT_ID, subscriptionId);
+        Subscriber subscriber = null;
+        try {
+            subscriber = Subscriber.newBuilder(subscriptionName, new MessageReceiverExample()).build();
+            subscriber.startAsync().awaitRunning();
+            while (true) {
+                PubsubMessage message = messages.take();
+                System.out.println("Message Id: " + message.getMessageId());
+                System.out.println("Data: " + message.getData().toStringUtf8());
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            if (subscriber != null) {
+                subscriber.stopAsync();
+            }
+        }
+    }
 }
