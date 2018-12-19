@@ -16,69 +16,53 @@
 
 package bd.com.sagar.rest.pubsub;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
 import com.google.api.core.ApiFuture;
-import com.google.api.core.ApiFutures;
 import com.google.cloud.pubsub.v1.Publisher;
 import com.google.protobuf.ByteString;
 import com.google.pubsub.v1.ProjectTopicName;
 import com.google.pubsub.v1.PubsubMessage;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import bd.com.sagar.rest.core.bean.EmployeeBean;
 
 @Component
 public class PublisherExample {
 
-	@Value("${app.notification}")
-	private String notification;
+    @Value("${app.notification}")
+    private String notification;
 
-	public void publishNotification(EmployeeBean employeeBean) {
-		if (!notification.equals("on")) {
-			return;
-		}
-		String topicId = SubscriberExample.TOPIC_ID;
-		ProjectTopicName topicName = ProjectTopicName.of(SubscriberExample.PROJECT_ID, topicId);
-		Publisher publisher = null;
-		List<ApiFuture<String>> futures = new ArrayList<>();
+    public void publishNotification(EmployeeBean employeeBean) {
+        if (!notification.equals("on")) {
+            return;
+        }
+        String topicId = SubscriberExample.TOPIC_ID;
+        ProjectTopicName topicName = ProjectTopicName.of(SubscriberExample.PROJECT_ID, topicId);
+        Publisher publisher = null;
+        List<ApiFuture<String>> futures = new ArrayList<>();
 
-		try {
-			publisher = Publisher.newBuilder(topicName).build();
-			String message = "deleted -> " + employeeBean.toString() + "record";
-			ByteString data = ByteString.copyFromUtf8(message);
-			PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).build();
-			ApiFuture<String> future = publisher.publish(pubsubMessage);
-			futures.add(future);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			List<String> messageIds = null;
-			try {
-				messageIds = ApiFutures.allAsList(futures).get();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				e.printStackTrace();
-			}
-
-			for (String messageId : messageIds) {
-				System.out.println(messageId);
-			}
-
-			if (publisher != null) {
-				try {
-					publisher.shutdown();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
+        try {
+            publisher = Publisher.newBuilder(topicName).build();
+            String message = "Employee Record deleted -> " + employeeBean.toString();
+            ByteString data = ByteString.copyFromUtf8(message);
+            PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).build();
+            ApiFuture<String> future = publisher.publish(pubsubMessage);
+            futures.add(future);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (publisher != null) {
+                try {
+                    publisher.shutdown();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
