@@ -12,9 +12,11 @@ At first clone this repository https://github.com/shafikul/spring-rest-service.g
 
 cd into spring-rest-service folder. Inside src directory find ***application.properties*** file and modify properties  
 
-***app.fileDir={enter your directory name}***    
-***app.fileName={enter your json file name}***  
-***app.notification=on {Only if you want to get notification for employee delete}***  
+```doc
+  app.fileDir={enter your directory name}    
+  app.fileName={enter your json file name}  
+  app.notification=on {Only if you want to get notification for employee delete}
+```
 
 In order to get notification in Linux/MacOS set GOOGLE_APPLICATION_CREDENTIALS in environment variable
 
